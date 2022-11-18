@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:toss2/appBarPage/calendar.dart';
 import 'package:toss2/appBarPage/setting.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+
 class CurrentMoney extends StatelessWidget {
   final int money;
   final String profit;
-  var f = NumberFormat('###,###');
+  final f = NumberFormat('###,###');
 
   CurrentMoney({super.key, required this.money, required this.profit});
 
@@ -63,6 +63,39 @@ class CurrentMoney extends StatelessWidget {
             ),
           ],
         ),
+      ],
+    );
+  }
+}
+
+class Stock extends StatelessWidget {
+  final String img;
+  final int curPrice;
+  final double change;
+  final f = NumberFormat("###,###");
+  Stock({super.key, required this.img, required this.curPrice, required this.change});
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            CircleImg(img: 'assets/$img.png'),
+            Text(img)
+          ],
+        ),
+        Column(
+          children: [
+            Text(
+              "$change%",
+              style: TextStyle(
+                color: change > 0 ? Colors.red : Colors.blue
+              ),
+            ),
+            Text('${f.format(curPrice)}원'),
+          ],
+        )
       ],
     );
   }

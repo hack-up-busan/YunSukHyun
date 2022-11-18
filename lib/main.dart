@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'package:toss2/Tabbar/MyStock.dart';
+import 'package:toss2/appBarPage/calendar.dart';
+import 'package:toss2/appBarPage/setting.dart';
 import 'custom.dart';
 
 void main() {
@@ -10,16 +12,18 @@ class MyApp extends StatefulWidget {
   const MyApp({super.key});
   @override
   State<MyApp> createState() => _MyAppState();
+
 }
 
 class _MyAppState extends State<MyApp> with TickerProviderStateMixin{
+  List stockInfo = [["테슬라", 98907, 1.6], ["대한전선", 8812, -2.1]];
+  bool _down = false;
   late TabController _controller;
   @override
   void initState() {
     super.initState();
     _controller = TabController(length: 2, vsync: this);
   }
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -30,11 +34,83 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin{
         textTheme: const TextTheme(bodyText2: TextStyle(color: Colors.white)),
       ),
       home: Scaffold(
-          appBar: PreferredSize(
-              preferredSize: const Size.fromHeight(130),
-              child: ResponsiveBar()),
+        appBar: AppBar(
+            actionsIconTheme: IconThemeData(color: Colors.grey[600]),
+            title: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.fromLTRB(10, 30, 18, 0),
+                  child: const Text(
+                    "토스증권",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.only(top: 30),
+                    child: Row(
+                      children: [
+                        Text(
+                          "코스피",
+                          style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                        ),
+                        const SizedBox(width: 5),
+                        const Text(
+                          '2,237.86',
+                          style: TextStyle(fontSize: 15, color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+            actions: [
+              IconButton(
+                  onPressed: () {
+                    showSearch(context: context, delegate: Search(["good"]));
+                  },
+                  icon: const Icon(Icons.search)),
+              IconButton(
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const CalendarPage()));
+                  },
+                  icon: const Icon(Icons.calendar_month)),
+              IconButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => const SettingPage()));
+                  },
+                  icon: const Icon(Icons.settings)),
+            ],
+          ),
           body: ListView(
+            shrinkWrap: true,
             children: [
+              DefaultTabController(
+                  length: 2,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: const [
+                      TabBar(
+                        indicatorColor: Colors.white,
+                        labelColor: Colors.white,
+                        unselectedLabelColor: Colors.black,
+                        tabs: [
+                          Tab(text: '내 주식'),
+                          Tab(text: '오늘의 발견'),
+                        ],
+                      ),
+
+
+                    ],
+                  ),
+              ),
+
+
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -86,42 +162,53 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin{
                         const SizedBox(
                           height: 25,
                         ),
-                        const DrownDown()
+                        //const DrownDown(),
+                        GestureDetector(
+                          onTap: (){
+                            setState(() {
+                              // Toggle light when tapped.
+                              _down = !_down;
+                            });
+                          },
+                          child: Row(
+                            children: [
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              const Text("기본", style: TextStyle(fontSize: 15),),
+                              const Spacer(),
+                              Icon(
+                                _down ? Icons.arrow_downward : Icons.arrow_upward,
+                                color: Colors.grey[400],
+                              ),
+                              const SizedBox(width: 10,)
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  Visibility(
+                    visible: !_down,
+                    child: Column(
+                      children: [
+                        Stock(
+                          img: stockInfo[0][0],
+                          curPrice: 98907,
+                          change: 1.6,
+                        ),
+                        Stock(
+                          img: "대한",
+                          curPrice: 8812,
+                          change: -2.1,
+                        ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 10,),
-                  Container(
-                    height: 120,
-                    color: Colors.grey[800],
-                    child: Row(
-                      children: [
-                        const SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 13),
-                            RichText(
-                              text: const TextSpan(
-                                text: ' 지금 다른 사람들이 \n 눈여겨 보는 주식은?',
-                                style: TextStyle(fontSize: 20),
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: (){
-
-                              },
-                              child: const Text("실시간 인기 주식 보기 >"))
-                          ],
-                        ),
-                        const SizedBox(width: 130,),
-                        const CircleImg(img: "assets/qm.png")
-                      ],
-                    ),
-                  ),
+                  const PopularStock(),
                   const SizedBox(height: 30),
                   SizedBox(
-
                     child: Column(
                       children: const [
                         Text("◆토스증권")
@@ -138,11 +225,39 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin{
   }
 }
 
-class Tab1 extends StatelessWidget {
-  const Tab1({Key? key}) : super(key: key);
+class PopularStock extends StatelessWidget {
+  const PopularStock({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return ListView();
+    return Container(
+      height: 120,
+      color: Colors.grey[800],
+      child: Row(
+        children: [
+          const SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 13),
+              RichText(
+                text: const TextSpan(
+                  text: ' 지금 다른 사람들이 \n 눈여겨 보는 주식은?',
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+              TextButton(
+                  onPressed: (){
+
+                  },
+                  child: const Text("실시간 인기 주식 보기 >"))
+            ],
+          ),
+          const SizedBox(width: 130,),
+          const CircleImg(img: "assets/qm.png")
+        ],
+      ),
+    );
   }
 }
 
@@ -181,6 +296,8 @@ class _DrownDownState extends State<DrownDown> {
     );
   }
 }
+
+
 
 
 class Bottom extends StatefulWidget {
