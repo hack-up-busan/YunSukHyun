@@ -18,15 +18,16 @@ class CurrentMoney extends StatelessWidget {
       children: [
         const SizedBox(height: 10),
         Row(
-            children: const [
-              SizedBox(width: 10),
-              Text('보유 주식',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18),
+          children: const [
+            SizedBox(width: 10),
+            Text('보유 주식',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 18
               ),
-            ]
+            ),
+          ]
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -252,6 +253,14 @@ class Search extends SearchDelegate {
         );
       },
     );
+  }
+}
+
+class DefaultStock extends StatelessWidget {
+  const DefaultStock({Key? key}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Container();
   }
 }
 
